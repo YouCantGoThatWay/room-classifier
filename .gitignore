@@ -5,3 +5,5 @@ data/*
 !data/README.md
 export/out/
 .DS_Store
+._*
+.pytest_cache/

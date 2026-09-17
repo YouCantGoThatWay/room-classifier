@@ -18,10 +18,6 @@ dependencies = [
     "torch>=2.14.0",
 ]
 
-[build-system]
-requires = ["uv_build>=0.12.15,<0.13.0"]
-build-backend = "uv_build"
-
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
@@ -33,3 +29,6 @@ markers = ["slow: downloads models / long-running; deselect with -m 'not slow'"]
 
 [tool.setuptools]
 packages = ["common", "sources", "labeling", "training", "eval", "export"]
+
+[tool.uv]
+package = false
