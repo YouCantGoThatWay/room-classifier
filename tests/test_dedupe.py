@@ -38,3 +38,13 @@ def test_distinct_rooms_survive():
                       "Endless dunes roll away beneath a burning sun "
                       "toward mountains on the far horizon.")])
     assert len(out) == 2
+
+
+def test_transitive_merge_consolidates_dup_sources():
+    a = rec("a:1", "train", "Bridge", LONG, "tba")
+    b = rec("b:1", "eval", "Bridge", LONG, "rom")
+    c = rec("c:1", "train", "Bridge", LONG.replace("worn planks", "old worn planks"), "smaug")
+    out = dedupe([a, b, c])
+    assert len(out) == 1
+    flags = [f for f in out[0].flags if f.startswith("dup_sources:")]
+    assert flags == ["dup_sources:rom,smaug,tba"]

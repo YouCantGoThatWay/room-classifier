@@ -34,9 +34,23 @@ def _band_keys(sh: set[str]) -> list[str]:
 def _merge(group: list[RoomRecord]) -> RoomRecord:
     group.sort(key=lambda r: (r.tier != "eval", r.id))  # eval first
     survivor = group[0]
-    sources = sorted({r.source for r in group})
-    if len(sources) > 1:
-        survivor.flags = survivor.flags + [f"dup_sources:{','.join(sources)}"]
+
+    # Collect all sources: from group members + from any existing dup_sources flags
+    sources_set = {r.source for r in group}
+    for r in group:
+        for flag in r.flags:
+            if flag.startswith("dup_sources:"):
+                # Parse "dup_sources:src1,src2,..." into a set
+                sources_str = flag[len("dup_sources:"):]
+                sources_set.update(sources_str.split(","))
+
+    # Strip all existing dup_sources flags from survivor
+    survivor.flags = [f for f in survivor.flags if not f.startswith("dup_sources:")]
+
+    # Append exactly one consolidated flag when >1 source
+    if len(sources_set) > 1:
+        survivor.flags = survivor.flags + [f"dup_sources:{','.join(sorted(sources_set))}"]
+
     return survivor
 
 
