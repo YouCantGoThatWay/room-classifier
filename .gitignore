@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+data/*
+!data/README.md
+export/out/
+.DS_Store
