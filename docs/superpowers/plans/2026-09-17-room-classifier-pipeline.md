@@ -1121,7 +1121,7 @@ git commit -m "feat: corpus builder producing normalized per-source jsonl"
 
 **Interfaces:**
 - Consumes: `RoomRecord`, `normalized_key` from `common.textclean`.
-- Produces: `dedupe(records: list[RoomRecord]) -> list[RoomRecord]` — exact dedupe on `normalized_key(name, description)`, then near-dup detection (5-token shingles, 4 salted min-hash bucket keys, Jaccard ≥ 0.8 within buckets). Duplicate groups keep one canonical record; **if any member is eval-tier the survivor is eval-tier** (eval wins); survivor's `flags` gains `"dup_sources:<comma-list>"` when merged from multiple sources. CLI writes `data/dedup/train.jsonl` and `data/dedup/eval.jsonl`.
+- Produces: `dedupe(records: list[RoomRecord]) -> list[RoomRecord]` — exact dedupe on `normalized_key(name, description)`, then near-dup detection (5-token shingles, 4 salted min-hash bucket keys, Jaccard ≥ 0.5 within buckets). Duplicate groups keep one canonical record; **if any member is eval-tier the survivor is eval-tier** (eval wins); survivor's `flags` gains `"dup_sources:<comma-list>"` when merged from multiple sources. CLI writes `data/dedup/train.jsonl` and `data/dedup/eval.jsonl`.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1186,7 +1186,7 @@ from common.schema import RoomRecord, read_jsonl, write_jsonl
 from common.textclean import normalized_key
 
 N_BANDS = 4
-JACCARD_THRESHOLD = 0.8
+JACCARD_THRESHOLD = 0.5
 
 
 def shingles(text: str, k: int = 5) -> set[str]:
