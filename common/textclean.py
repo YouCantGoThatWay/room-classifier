@@ -36,4 +36,4 @@ def build_text(name: str, description: str) -> str:
 def normalized_key(name: str, description: str) -> str:
     joined = f"{name} {description}".lower()
     joined = strip_codes(joined).replace("~", "")
-    return _WS.sub(" ", _PUNCT.sub("", joined)).strip()
+    return _WS.sub(" ", _PUNCT.sub(" ", joined)).strip()

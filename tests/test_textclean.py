@@ -27,3 +27,8 @@ def test_normalized_key_ignores_case_and_punct():
     a = normalized_key("The Temple", "A vaulted, stone hall!")
     b = normalized_key("the temple", "a vaulted stone hall")
     assert a == b
+
+
+def test_normalized_key_treats_newlines_as_spaces():
+    assert normalized_key("The Temple", "A vaulted,\nstone hall!") == \
+        normalized_key("The Temple", "a vaulted stone hall")
