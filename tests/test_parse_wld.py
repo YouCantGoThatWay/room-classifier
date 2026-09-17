@@ -18,3 +18,8 @@ def test_parses_rooms():
 def test_unknown_sector_maps_to_empty():
     rooms = parse_wld(FIXTURE.read_text())
     assert rooms[1]["sector_hint"] == SECTOR_NAMES.get(11, "")
+
+
+def test_truncated_header_does_not_crash():
+    assert parse_wld("#3001") == []
+    assert parse_wld("#3001\n") == []

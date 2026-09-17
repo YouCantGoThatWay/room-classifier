@@ -20,6 +20,8 @@ def parse_wld(text: str) -> list[dict]:
             i += 1
             continue
         i += 1
+        if i >= len(lines):
+            break
         name = lines[i].rstrip().rstrip("~")
         i += 1
         desc = []
