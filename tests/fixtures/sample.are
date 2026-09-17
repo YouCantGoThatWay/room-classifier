@@ -1,0 +1,18 @@
+#AREA	{ 5 35} Someone  Sample Area~
+
+#ROOMS
+#9201
+In a Sandy Desert~
+Endless dunes roll away in every direction beneath a burning sun.
+~
+92 0 11
+S
+#9202
+Temple Square~
+The great square before the temple bustles with traders.
+~
+92 8 1 0 0 0
+S
+#0
+
+#$
