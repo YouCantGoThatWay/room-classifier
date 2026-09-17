@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "bases": ["indoor", "settlement", "road", "grassland", "forest",
+            "desert", "mountain", "cave", "water", "underwater",
+            "swamp", "snow", "spacecraft", "urban", "unknown"],
+  "modifiers": ["dark", "bright", "dense", "ruined", "magical", "underground"],
+  "tie_breaks": [
+    "Classify the room the player stands in; scenes through windows, exits, or lore do not count.",
+    "Enclosed built space beats terrain: a tavern in a forest is indoor.",
+    "spacecraft beats indoor: a station greenhouse is spacecraft.",
+    "A bridge is the terrain it crosses (bridge feature tags deferred).",
+    "urban = modern/sci-fi city exterior; settlement = pre-modern village/town exterior.",
+    "cave containing a lake is cave unless the player is in the water; then water/underwater.",
+    "snow beats mountain when snow/ice dominates the description.",
+    "unknown only when evidence is genuinely insufficient."
+  ]
+}
