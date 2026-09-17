@@ -12,7 +12,7 @@ class SourceSpec:
     tier: str          # "train" | "eval"
     license_note: str
     world_glob: str    # glob under the repo root for world files
-    parser: str        # "wld" | "are" | "coffeemud"
+    parser: str        # "wld" | "are" | "coffeemud" | "awake" | "fuss"
 
 
 SOURCES: dict[str, SourceSpec] = {

@@ -24,6 +24,13 @@ wrapper section) containing space-separated ``Key value`` lines, e.g.::
 A minority of files in the FUSS-lineage corpus (e.g. SWFOTE's space.are)
 are actually the older ROM/Merc ``#ROOMS`` section dialect; when no
 ``#ROOM`` blocks are found at all, fall back to that parser.
+
+Assumes a single dialect per file: if a file contained both ``#ROOM``
+blocks and a ``#ROOMS`` section, the native ``#ROOM``-block parse (run
+first) would win outright and the ``#ROOMS`` rooms would be dropped, since
+the fallback only runs when the native parse yields zero rooms. No such
+mixed-dialect file exists in the current corpus (verified: fallback fires
+only for space.are, which has no ``#ROOM`` blocks at all).
 """
 from sources.parse_are import parse_are_rooms
 
