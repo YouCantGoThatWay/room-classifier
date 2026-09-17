@@ -5,11 +5,14 @@ from common.schema import RoomRecord, write_jsonl
 from common.textclean import clean_text, is_trivial
 from sources.download import SOURCES, SourceSpec
 from sources.parse_are import parse_are_rooms
+from sources.parse_awake import parse_awake
 from sources.parse_coffeemud import parse_cmare
+from sources.parse_fuss import parse_fuss_rooms
 from sources.parse_wld import parse_wld
 
 _PARSERS = {"wld": parse_wld, "are": parse_are_rooms,
-            "coffeemud": parse_cmare}
+            "coffeemud": parse_cmare, "awake": parse_awake,
+            "fuss": parse_fuss_rooms}
 
 
 def build_source(spec: SourceSpec, repo_dir: Path) -> list[RoomRecord]:

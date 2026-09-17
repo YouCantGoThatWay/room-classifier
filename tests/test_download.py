@@ -12,8 +12,8 @@ def test_registry_tiers_and_parsers():
     assert SOURCES["coffeemud"].tier == "train"
     for grey in ("smaug", "rom", "awakemud", "swfote"):
         assert SOURCES[grey].tier == "eval"
-    assert SOURCES["awakemud"].parser == "wld"
-    assert SOURCES["swfote"].parser == "are"
+    assert SOURCES["awakemud"].parser == "awake"
+    assert SOURCES["swfote"].parser == "fuss"
 
 
 def _make_local_repo(path: Path) -> str:

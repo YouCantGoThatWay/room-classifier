@@ -32,10 +32,10 @@ SOURCES: dict[str, SourceSpec] = {
     "awakemud": SourceSpec("awakemud",
                            "https://github.com/luciensadi/AwakeMUD.git",
                            "eval", "Circle lineage + Shadowrun fan IP",
-                           "lib/world/wld/*.wld", "wld"),
+                           "lib/world/wld/*.wld", "awake"),
     "swfote": SourceSpec("swfote", "https://github.com/Arthmoor/SWFOTEFUSS.git",
                          "eval", "SMAUG lineage + Star Wars fan IP",
-                         "area/*.are", "are"),
+                         "area/*.are", "fuss"),
 }
 
 
