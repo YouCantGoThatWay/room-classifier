@@ -11,3 +11,4 @@ export/wundur-room-classifier-*/
 .pytest_cache/
 checkpoints/
 .superpowers/
+export/release/
