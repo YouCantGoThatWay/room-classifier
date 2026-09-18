@@ -531,6 +531,8 @@ def parse_wld(text: str) -> list[dict]:
             i += 1
             continue
         i += 1
+        if i >= len(lines):
+            break
         name = lines[i].rstrip().rstrip("~")
         i += 1
         desc = []
@@ -664,6 +666,8 @@ def parse_are_rooms(text: str) -> list[dict]:
             i += 1
             continue
         i += 1
+        if i >= len(lines):
+            break
         name = lines[i].rstrip().rstrip("~")
         i += 1
         desc = []
@@ -1060,6 +1064,8 @@ def build_source(spec: SourceSpec, repo_dir: Path) -> list[RoomRecord]:
     parse = _PARSERS[spec.parser]
     records: list[RoomRecord] = []
     for f in sorted(repo_dir.glob(spec.world_glob)):
+        if f.name.startswith("."):
+            continue  # exFAT AppleDouble ._* sidecars match the globs
         area = f.stem
         for room in parse(f.read_text(errors="replace")):
             name = clean_text(room["name"])
@@ -2515,8 +2521,10 @@ def _predict(emb: np.ndarray, head: dict) -> tuple[np.ndarray, list[str]]:
     coef = np.array(head["coef"])
     logits = emb @ coef.T + np.array(head["intercept"])
     if logits.ndim == 2 and logits.shape[1] == 1:  # binary sklearn shape
-        logits = np.hstack([-logits, logits])
-    probs = _softmax(logits)
+        p = 1.0 / (1.0 + np.exp(-logits[:, 0]))
+        probs = np.column_stack([1.0 - p, p])
+    else:
+        probs = _softmax(logits)
     preds = [head["classes"][i] for i in probs.argmax(axis=1)]
     return probs, preds
 
