@@ -18,8 +18,10 @@ def _predict(emb: np.ndarray, head: dict) -> tuple[np.ndarray, list[str]]:
     coef = np.array(head["coef"])
     logits = emb @ coef.T + np.array(head["intercept"])
     if logits.ndim == 2 and logits.shape[1] == 1:  # binary sklearn shape
-        logits = np.hstack([-logits, logits])
-    probs = _softmax(logits)
+        p = 1.0 / (1.0 + np.exp(-logits[:, 0]))
+        probs = np.column_stack([1.0 - p, p])
+    else:
+        probs = _softmax(logits)
     preds = [head["classes"][i] for i in probs.argmax(axis=1)]
     return probs, preds
 

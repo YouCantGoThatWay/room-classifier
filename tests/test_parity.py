@@ -40,3 +40,16 @@ def test_verify_detects_corruption(tmp_path: Path):
     data["fixtures"][0]["embedding"][0] += 0.5
     p.write_text(json.dumps(data))
     assert verify(out) is False
+
+
+def test_predict_matches_sklearn_binary():
+    import numpy as np
+    from sklearn.linear_model import LogisticRegression
+    from export.parity import _predict
+    rng = np.random.default_rng(7)
+    X = rng.normal(size=(60, 8)); y = (X[:, 0] > 0).astype(int)
+    clf = LogisticRegression(max_iter=1000).fit(X, y)
+    head = {"classes": [str(c) for c in clf.classes_],
+            "coef": clf.coef_.tolist(), "intercept": clf.intercept_.tolist()}
+    probs, preds = _predict(X[:5], head)
+    assert np.allclose(probs, clf.predict_proba(X[:5]), atol=1e-9)
