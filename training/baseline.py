@@ -16,6 +16,9 @@ def _texts(records: list[RoomRecord]) -> list[str]:
 
 
 def train_baseline(train: list[RoomRecord]) -> Pipeline:
+    for r in train:
+        if r.tier == "eval":
+            raise ValueError(f"{r.id}: eval-tier record in training input")
     model = Pipeline([
         ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=2)),
         ("clf", LogisticRegression(max_iter=1000, class_weight="balanced")),

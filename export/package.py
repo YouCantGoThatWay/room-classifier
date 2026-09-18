@@ -8,7 +8,7 @@ from pathlib import Path
 
 from sources.download import SOURCES
 
-PACKAGE_VERSION = "0.1.0"
+PACKAGE_VERSION = "0.1.1"
 CORE_FILES = ["encoder.onnx", "tokenizer.json", "head.json",
               "preprocessing_spec.json", "parity_fixtures.json"]
 

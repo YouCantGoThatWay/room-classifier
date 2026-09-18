@@ -39,11 +39,17 @@ SOURCES: dict[str, SourceSpec] = {
 }
 
 
+SOURCE_PINS_PATH = Path("sources/PINS.json")
+
+
 def clone_all(dest: Path, only: list[str] | None = None) -> dict[str, str]:
     dest.mkdir(parents=True, exist_ok=True)
     pins: dict[str, str] = {}
     if (dest / "PINS.json").exists():
         pins = json.loads((dest / "PINS.json").read_text())
+    source_pins: dict[str, str] = {}
+    if SOURCE_PINS_PATH.exists():
+        source_pins = json.loads(SOURCE_PINS_PATH.read_text())
     for name, spec in SOURCES.items():
         if only and name not in only:
             continue
@@ -51,6 +57,18 @@ def clone_all(dest: Path, only: list[str] | None = None) -> dict[str, str]:
         if not repo.exists():
             subprocess.run(["git", "clone", "--depth", "1", spec.git_url,
                             str(repo)], check=True)
+        pin = source_pins.get(name)
+        if pin:
+            head = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                                  capture_output=True, text=True,
+                                  check=True).stdout.strip()
+            if head != pin:
+                # HEAD doesn't match the committed pin: fetch and check out
+                # the pinned commit so acquisition is reproducible.
+                subprocess.run(["git", "-C", str(repo), "fetch", "--depth", "1",
+                                "origin", pin], check=True)
+                subprocess.run(["git", "-C", str(repo), "checkout", pin],
+                               check=True)
         sha = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
                              capture_output=True, text=True,
                              check=True).stdout.strip()

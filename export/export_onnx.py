@@ -89,9 +89,10 @@ def export_model(model_dir: Path, out_dir: Path, threshold: float) -> None:
         "strip_patterns": [rx.pattern for rx in _CODE_RES] + ["~"],
         "whitespace": "collapse runs to single space, trim",
         "max_word_pieces": 256,
-        "long_text_policy": ("split description into chunks of <=200 words; "
-                             "embed build_text(name, chunk) per chunk; "
-                             "mean the chunk embeddings"),
+        "long_text_policy": ("truncate at 256 word pieces (v1 evaluated "
+                             "behavior); chunking is a possible future "
+                             "revision, not implemented -- do not "
+                             "implement it client-side for v1"),
         "pooling": "mean over attention_mask", "normalize": "l2",
         "head": "logits = emb @ coef.T + intercept; softmax",
         "threshold": threshold, "taxonomy_version": "1.0.0",

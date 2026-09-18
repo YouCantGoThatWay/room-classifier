@@ -19,6 +19,12 @@ def metrics(y_true, preds, labels, threshold: float = 0.0) -> dict:
     per_class = {lab: {"precision": float(pr[i]), "recall": float(rc[i]),
                        "f1": float(f1[i]), "support": int(sup[i])}
                  for i, lab in enumerate(labels)}
+    # NOTE: macro-F1 here averages only over classes with support > 0 in
+    # y_true. This differs from sklearn's average="macro", which averages
+    # over all `labels` regardless of support (treating absent classes as
+    # F1=0). A split missing a class (e.g. a clean test split with zero
+    # synthetic-only classes) will therefore report a higher macro-F1 than
+    # sklearn would for the same `labels` list -- see DECISION.md Caveats.
     present = [l for l in labels if per_class[l]["support"] > 0]
     macro = (sum(per_class[l]["f1"] for l in present) / len(present)
              if present else 0.0)

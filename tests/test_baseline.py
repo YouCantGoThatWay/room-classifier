@@ -1,3 +1,5 @@
+import pytest
+
 from common.schema import RoomRecord
 from training.baseline import predict_with_proba, train_baseline
 
@@ -30,3 +32,12 @@ def test_baseline_learns_toy_corpus():
             "desert")])
     assert preds[0][0] == "forest" and preds[1][0] == "desert"
     assert all(0.0 < p <= 1.0 for _, p in preds)
+
+
+def test_train_baseline_rejects_eval_tier_records():
+    recs = _corpus()
+    recs[0] = RoomRecord(id="s:a:eval0", source="s", tier="eval", world="s",
+                         area="a", name="Room", description=recs[0].description,
+                         environment=recs[0].environment)
+    with pytest.raises(ValueError, match="eval-tier record"):
+        train_baseline(recs)

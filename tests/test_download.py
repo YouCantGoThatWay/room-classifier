@@ -34,9 +34,28 @@ def test_clone_all_writes_pins(tmp_path: Path, monkeypatch):
                             name="tbamud", git_url=str(tmp_path / "fakeremote"),
                             tier="train", license_note="test",
                             world_glob="*.txt", parser="wld"))
+    # No pin exists for this fake URL/name combination: behave as before.
+    monkeypatch.setattr(dl, "SOURCE_PINS_PATH", tmp_path / "no-such-pins.json")
     dest = tmp_path / "raw"
     pins = clone_all(dest, only=["tbamud"])
     assert pins == {"tbamud": sha}
     assert json.loads((dest / "PINS.json").read_text())["tbamud"] == sha
     # idempotent second run, still no other sources touched
     assert clone_all(dest, only=["tbamud"]) == {"tbamud": sha}
+
+
+def test_clone_all_honors_matching_pin_without_checkout(tmp_path: Path, monkeypatch):
+    sha = _make_local_repo(tmp_path / "fakeremote")
+    import sources.download as dl
+    monkeypatch.setitem(dl.SOURCES, "tbamud",
+                        dl.SOURCES["tbamud"].__class__(
+                            name="tbamud", git_url=str(tmp_path / "fakeremote"),
+                            tier="train", license_note="test",
+                            world_glob="*.txt", parser="wld"))
+    pins_file = tmp_path / "sources-pins.json"
+    pins_file.write_text(json.dumps({"tbamud": sha}))
+    monkeypatch.setattr(dl, "SOURCE_PINS_PATH", pins_file)
+    dest = tmp_path / "raw"
+    pins = clone_all(dest, only=["tbamud"])
+    assert pins == {"tbamud": sha}
+    assert json.loads((dest / "PINS.json").read_text())["tbamud"] == sha

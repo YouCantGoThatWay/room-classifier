@@ -89,6 +89,9 @@ def _stratified_subsample(records: list[RoomRecord], cap: int = SUBSAMPLE_CAP,
 
 
 def train_setfit(train: list[RoomRecord], epochs: int = 1) -> SetFitModel:
+    for r in train:
+        if r.tier == "eval":
+            raise ValueError(f"{r.id}: eval-tier record in training input")
     labels = sorted({r.environment for r in train})
     subsample = _stratified_subsample(train)
 

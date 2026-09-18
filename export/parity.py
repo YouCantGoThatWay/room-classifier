@@ -33,16 +33,45 @@ def _token_ids(text: str, tokenizer_path: Path) -> list[int]:
     return tok.encode(text).ids
 
 
+# Crafted fixtures covering edge cases the sampled tbamud records don't
+# exercise: color/tilde codes in the raw inputs, descriptions long enough
+# to be truncated at 256 word pieces, and a terse minimal description.
+_CRAFTED_FIXTURES = [
+    {
+        "id": "crafted:codes:0",
+        "name": "&RThe @gPainted~ Hall",
+        "description": ("A  &Rgrand hall@g   stretches before you~, its "
+                        "walls lined with {Gfaded murals~.   Dust   motes "
+                        "drift   through &Yshafts~ of {Wlight~."),
+    },
+    {
+        "id": "crafted:long:0",
+        "name": "Long Hall",
+        "description": ("The stone wall stretches upward into the gloom, "
+                        "carved with worn runes that no living scholar "
+                        "can read. " * 25).strip(),
+    },
+    {
+        "id": "crafted:terse:0",
+        "name": "Nook",
+        "description": "A small dusty nook.",
+    },
+]
+
+
 def make_fixtures(out_dir: Path, records: list[RoomRecord],
                   n: int = 20) -> Path:
     head = json.loads((out_dir / "head.json").read_text())
     records = records[:n]
-    texts = [build_text(r.name, r.description) for r in records]
+    items = [{"id": r.id, "name": r.name, "description": r.description}
+             for r in records] + _CRAFTED_FIXTURES
+    texts = [build_text(it["name"], it["description"]) for it in items]
     embs = embed(texts, out_dir / "encoder.onnx", out_dir / "tokenizer.json")
     probs, preds = _predict(embs, head)
     fixtures = []
-    for r, t, e, p, pred in zip(records, texts, embs, probs, preds):
-        fixtures.append({"id": r.id, "text": t,
+    for it, t, e, p, pred in zip(items, texts, embs, probs, preds):
+        fixtures.append({"id": it["id"], "name": it["name"],
+                         "description": it["description"], "text": t,
                          "token_ids": _token_ids(t, out_dir / "tokenizer.json"),
                          "embedding": [float(x) for x in e],
                          "probs": [float(x) for x in p],
@@ -61,6 +90,10 @@ def verify(out_dir: Path, atol_emb: float = 1e-3,
     embs = embed(texts, out_dir / "encoder.onnx", out_dir / "tokenizer.json")
     probs, preds = _predict(embs, head)
     for f, e, p, pred in zip(data["fixtures"], embs, probs, preds):
+        # Recompute text from the stored raw name/description to validate
+        # the cleaning chain (this is what the C# port must reproduce).
+        if build_text(f["name"], f["description"]) != f["text"]:
+            return False
         if f["token_ids"] != _token_ids(f["text"],
                                         out_dir / "tokenizer.json"):
             return False
