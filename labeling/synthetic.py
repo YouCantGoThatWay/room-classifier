@@ -15,6 +15,16 @@ def class_deficits(labeled: list[RoomRecord], target: int) -> dict[str, int]:
             for b in tax.bases if b != "unknown"}
 
 
+def assert_no_synthetic(existing: list[RoomRecord]) -> None:
+    """Guard against re-running main() and colliding synthetic IDs.
+
+    Raises SystemExit if any synthetic records are already in the labeled set.
+    """
+    if any(r.synthetic for r in existing):
+        raise SystemExit("synthetic records already merged into "
+                         "data/labeled/train.jsonl; refusing to append again")
+
+
 def validate_synthetic(items: list[dict]) -> list[RoomRecord]:
     tax = load_taxonomy()
     seen: set[str] = set()
@@ -48,6 +58,7 @@ def main() -> None:
     recs = validate_synthetic(items)
     labeled_path = Path("data/labeled/train.jsonl")
     existing = read_jsonl(labeled_path)
+    assert_no_synthetic(existing)
     write_jsonl(labeled_path, existing + recs)
     print(f"appended {len(recs)} synthetic records "
           f"({Counter(r.environment for r in recs).most_common()})")
