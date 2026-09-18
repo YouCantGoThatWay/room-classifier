@@ -37,7 +37,7 @@ def export_model(model_dir: Path, out_dir: Path, threshold: float) -> None:
     st = model.model_body
     # torch.onnx.export runs on CPU; move off MPS/CUDA if the model loaded
     # there (SetFit.from_pretrained picks up an available accelerator).
-    st = st.to("cpu")
+    st.to("cpu")
     auto = st[0].auto_model.eval()
     wrapper = _EncoderWrapper(auto).eval()
 
@@ -48,6 +48,16 @@ def export_model(model_dir: Path, out_dir: Path, threshold: float) -> None:
     # and not in project deps). Pass dynamo=False to use the legacy
     # TorchScript-based exporter, which supports dynamic_axes/opset_version
     # exactly as briefed with no extra dependency.
+    #
+    # IMPORTANT: this trace uses an all-ones attention_mask (no padding),
+    # and transformers' SDPA/masking code branches on the mask at trace
+    # time (see the TracerWarnings this export prints), baking in the
+    # "no padding" path. The exported graph exposes a dynamic batch axis,
+    # but batching is NOT validated: a batch with real padding
+    # (attention_mask containing zeros) may attend over padded positions
+    # incorrectly. Only single-example, unpadded (batch=1) inference is
+    # covered by the parity test in tests/test_export_onnx.py. This is
+    # also recorded in preprocessing_spec.json's "inference" field.
     torch.onnx.export(
         wrapper, (ids, mask), str(out_dir / "encoder.onnx"),
         input_names=["input_ids", "attention_mask"],
@@ -86,6 +96,10 @@ def export_model(model_dir: Path, out_dir: Path, threshold: float) -> None:
         "head": "logits = emb @ coef.T + intercept; softmax",
         "threshold": threshold, "taxonomy_version": "1.0.0",
         "model": "sentence-transformers/all-MiniLM-L6-v2 (fine-tuned)",
+        "inference": ("one text per call, batch=1, no padding; the graph "
+                      "was traced without padding -- batched inputs with "
+                      "attention_mask zeros are NOT validated and may "
+                      "attend over padding"),
     }, indent=1))
 
 
