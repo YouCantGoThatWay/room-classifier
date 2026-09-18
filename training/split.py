@@ -9,6 +9,8 @@ def _group_key(rec: RoomRecord) -> str:
     if rec.synthetic:
         if rec.parent_id:
             parts = rec.parent_id.split(":")
+            if len(parts) < 2:
+                raise ValueError(f"{rec.id}: malformed parent_id {rec.parent_id!r}")
             return f"{parts[0]}:{parts[1]}"
         return "__synthetic_train__"
     return f"{rec.source}:{rec.area}"

@@ -44,3 +44,10 @@ def test_split_records_partitions_everything():
     parts = split_records(recs)
     assert sum(len(v) for v in parts.values()) == len(recs)
     assert parts["train"] and parts["val"] and parts["test"]
+
+
+def test_malformed_parent_id_raises_value_error():
+    child = rec("synthetic:forest:2", source="synthetic",
+                area="synthetic:forest", synthetic=True, parent_id="tbamud")
+    with pytest.raises(ValueError, match="malformed parent_id"):
+        assign_split(child)
