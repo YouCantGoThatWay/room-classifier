@@ -5,6 +5,7 @@ data/*
 !data/README.md
 export/out/
 export/*.zip
+export/wundur-room-classifier-*/
 .DS_Store
 ._*
 .pytest_cache/

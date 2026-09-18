@@ -39,15 +39,16 @@ def assemble(out_dir: Path, package_dir: Path,
         shutil.copy(src, stage / name)
     (stage / "LICENSES.md").write_text(_licenses_md())
     files = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-             for p in sorted(stage.iterdir())}
+             for p in sorted(stage.iterdir()) if not p.name.startswith(".")}
     (stage / "manifest.json").write_text(json.dumps({
         "version": PACKAGE_VERSION,
         "created": datetime.date.today().isoformat(),
         "files": files, "source_pins": pins}, indent=1))
     zip_path = package_dir / f"{stage.name}.zip"
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-        for p in sorted(stage.iterdir()):
+        for p in sorted((p for p in stage.iterdir() if not p.name.startswith("."))):
             z.write(p, p.name)
+    shutil.rmtree(stage, ignore_errors=True)
     return zip_path
 
 
