@@ -1,7 +1,7 @@
 [project]
 name = "room-classifier"
 version = "0.1.0"
-description = "Add your description here"
+description = "Training pipeline for a MUD room-environment classifier (SetFit/MiniLM to ONNX)"
 authors = [
     { name = "YouCantGoThatWay", email = "330908758+YouCantGoThatWay@users.noreply.github.com" }
 ]
