@@ -456,9 +456,9 @@ git commit -m "feat: taxonomy v1.0.0 with loader and label validation"
 `tests/fixtures/sample.wld`:
 ```
 #3001
-The Temple of Midgaard~
-You are in the southern end of the temple hall in the temple of Midgaard.
-Huge marble pillars rise up to the ceiling far above your head.
+The Hall of Amber Wardens~
+You are in the eastern end of the warden hall beneath Rivenspire keep.
+Tall oaken columns rise up to the rafters far above your head.
 ~
 30 abd 0
 D0
@@ -467,8 +467,8 @@ D0
 0 -1 3054
 S
 #3054
-On the Bridge~
-The bridge crosses the river from east to west.
+On the Old Causeway~
+The causeway spans the ravine from north to south.
 ~
 30 0 11
 S
@@ -489,9 +489,9 @@ def test_parses_rooms():
     rooms = parse_wld(FIXTURE.read_text())
     assert [r["vnum"] for r in rooms] == [3001, 3054]
     t = rooms[0]
-    assert t["name"] == "The Temple of Midgaard"
-    assert t["description"].startswith("You are in the southern end")
-    assert "pillars rise" in t["description"]
+    assert t["name"] == "The Hall of Amber Wardens"
+    assert t["description"].startswith("You are in the eastern end")
+    assert "columns rise" in t["description"]
     assert t["sector_hint"] == "inside"
     assert t["flags"] == ["abd"]
 
@@ -531,6 +531,8 @@ def parse_wld(text: str) -> list[dict]:
             i += 1
             continue
         i += 1
+        if i >= len(lines):
+            break
         name = lines[i].rstrip().rstrip("~")
         i += 1
         desc = []
@@ -664,6 +666,8 @@ def parse_are_rooms(text: str) -> list[dict]:
             i += 1
             continue
         i += 1
+        if i >= len(lines):
+            break
         name = lines[i].rstrip().rstrip("~")
         i += 1
         desc = []
@@ -1016,13 +1020,13 @@ def _spec(parser, glob):
 
 def test_build_from_wld(tmp_path: Path):
     (tmp_path / "w").mkdir()
-    (tmp_path / "w" / "midgaard.wld").write_text(
+    (tmp_path / "w" / "rivenspire.wld").write_text(
         (FIXDIR / "sample.wld").read_text())
     recs = build_source(_spec("wld", "w/*.wld"), tmp_path)
-    assert {r.id for r in recs} == {"testsrc:midgaard:3001",
-                                    "testsrc:midgaard:3054"}
+    assert {r.id for r in recs} == {"testsrc:rivenspire:3001",
+                                    "testsrc:rivenspire:3054"}
     r = recs[0]
-    assert r.tier == "eval" and r.area == "midgaard"
+    assert r.tier == "eval" and r.area == "rivenspire"
     assert "\n" not in r.description  # cleaned
     r.validate()
 
@@ -1060,6 +1064,8 @@ def build_source(spec: SourceSpec, repo_dir: Path) -> list[RoomRecord]:
     parse = _PARSERS[spec.parser]
     records: list[RoomRecord] = []
     for f in sorted(repo_dir.glob(spec.world_glob)):
+        if f.name.startswith("."):
+            continue  # exFAT AppleDouble ._* sidecars match the globs
         area = f.stem
         for room in parse(f.read_text(errors="replace")):
             name = clean_text(room["name"])
@@ -1121,7 +1127,7 @@ git commit -m "feat: corpus builder producing normalized per-source jsonl"
 
 **Interfaces:**
 - Consumes: `RoomRecord`, `normalized_key` from `common.textclean`.
-- Produces: `dedupe(records: list[RoomRecord]) -> list[RoomRecord]` — exact dedupe on `normalized_key(name, description)`, then near-dup detection (5-token shingles, 4 salted min-hash bucket keys, Jaccard ≥ 0.8 within buckets). Duplicate groups keep one canonical record; **if any member is eval-tier the survivor is eval-tier** (eval wins); survivor's `flags` gains `"dup_sources:<comma-list>"` when merged from multiple sources. CLI writes `data/dedup/train.jsonl` and `data/dedup/eval.jsonl`.
+- Produces: `dedupe(records: list[RoomRecord]) -> list[RoomRecord]` — exact dedupe on `normalized_key(name, description)`, then near-dup detection (5-token shingles, 4 salted min-hash bucket keys, Jaccard ≥ 0.5 within buckets). Duplicate groups keep one canonical record; **if any member is eval-tier the survivor is eval-tier** (eval wins); survivor's `flags` gains `"dup_sources:<comma-list>"` when merged from multiple sources. CLI writes `data/dedup/train.jsonl` and `data/dedup/eval.jsonl`.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1186,7 +1192,7 @@ from common.schema import RoomRecord, read_jsonl, write_jsonl
 from common.textclean import normalized_key
 
 N_BANDS = 4
-JACCARD_THRESHOLD = 0.8
+JACCARD_THRESHOLD = 0.5
 
 
 def shingles(text: str, k: int = 5) -> set[str]:
@@ -2515,8 +2521,10 @@ def _predict(emb: np.ndarray, head: dict) -> tuple[np.ndarray, list[str]]:
     coef = np.array(head["coef"])
     logits = emb @ coef.T + np.array(head["intercept"])
     if logits.ndim == 2 and logits.shape[1] == 1:  # binary sklearn shape
-        logits = np.hstack([-logits, logits])
-    probs = _softmax(logits)
+        p = 1.0 / (1.0 + np.exp(-logits[:, 0]))
+        probs = np.column_stack([1.0 - p, p])
+    else:
+        probs = _softmax(logits)
     preds = [head["classes"][i] for i in probs.argmax(axis=1)]
     return probs, preds
 
