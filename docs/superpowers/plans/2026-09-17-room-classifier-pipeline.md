@@ -456,9 +456,9 @@ git commit -m "feat: taxonomy v1.0.0 with loader and label validation"
 `tests/fixtures/sample.wld`:
 ```
 #3001
-The Temple of Midgaard~
-You are in the southern end of the temple hall in the temple of Midgaard.
-Huge marble pillars rise up to the ceiling far above your head.
+The Hall of Amber Wardens~
+You are in the eastern end of the warden hall beneath Rivenspire keep.
+Tall oaken columns rise up to the rafters far above your head.
 ~
 30 abd 0
 D0
@@ -467,8 +467,8 @@ D0
 0 -1 3054
 S
 #3054
-On the Bridge~
-The bridge crosses the river from east to west.
+On the Old Causeway~
+The causeway spans the ravine from north to south.
 ~
 30 0 11
 S
@@ -489,9 +489,9 @@ def test_parses_rooms():
     rooms = parse_wld(FIXTURE.read_text())
     assert [r["vnum"] for r in rooms] == [3001, 3054]
     t = rooms[0]
-    assert t["name"] == "The Temple of Midgaard"
-    assert t["description"].startswith("You are in the southern end")
-    assert "pillars rise" in t["description"]
+    assert t["name"] == "The Hall of Amber Wardens"
+    assert t["description"].startswith("You are in the eastern end")
+    assert "columns rise" in t["description"]
     assert t["sector_hint"] == "inside"
     assert t["flags"] == ["abd"]
 
@@ -1020,13 +1020,13 @@ def _spec(parser, glob):
 
 def test_build_from_wld(tmp_path: Path):
     (tmp_path / "w").mkdir()
-    (tmp_path / "w" / "midgaard.wld").write_text(
+    (tmp_path / "w" / "rivenspire.wld").write_text(
         (FIXDIR / "sample.wld").read_text())
     recs = build_source(_spec("wld", "w/*.wld"), tmp_path)
-    assert {r.id for r in recs} == {"testsrc:midgaard:3001",
-                                    "testsrc:midgaard:3054"}
+    assert {r.id for r in recs} == {"testsrc:rivenspire:3001",
+                                    "testsrc:rivenspire:3054"}
     r = recs[0]
-    assert r.tier == "eval" and r.area == "midgaard"
+    assert r.tier == "eval" and r.area == "rivenspire"
     assert "\n" not in r.description  # cleaned
     r.validate()
 

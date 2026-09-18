@@ -1,7 +1,7 @@
 #FUSSAREA
 #AREADATA
 Version      1
-Name         Bakura~
+Name         Outer Reach~
 Author       Carissa~
 Ranges       0 0 0 0
 Economy      0 6135257
@@ -9,7 +9,7 @@ Economy      0 6135257
 
 #ROOM
 Vnum     18001
-Name     Salis D'aar Spaceport~
+Name     Kestrel Spaceport~
 Sector   city~
 Flags    nomob~
 Stats    0 0 15288

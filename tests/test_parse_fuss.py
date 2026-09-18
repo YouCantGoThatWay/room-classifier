@@ -9,7 +9,7 @@ def test_parses_room_blocks():
     rooms = parse_fuss_rooms(FIXTURE.read_text())
     assert [r["vnum"] for r in rooms] == [18001, 18002]
     t = rooms[0]
-    assert t["name"] == "Salis D'aar Spaceport"
+    assert t["name"] == "Kestrel Spaceport"
     assert t["description"].startswith("The spaceport sits on a natural bedrock")
     assert "risk" in t["description"]
     assert t["sector_hint"] == "city"

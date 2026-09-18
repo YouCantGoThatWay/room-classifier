@@ -1,8 +1,8 @@
 #0
-Name:	A Bright Light
+Name:	A Sudden Silence
 Desc:$
-   What... oh no.... you're not dead are you? Better take one last grab at
-life while you still can.
+   Systems... wait, are you still online? Better make one last connection
+before the link goes dark.
 ~
 Flags:	11000
 SecType:	Inside
@@ -29,12 +29,13 @@ RoomType:	0
 	KeyVnum:	0
 BREAK
 #10500
-Name:	Below A Corporate Tower
+Name:	Beneath A Corporate Spire
 Desc:$
-   Towering above East Tacoma and most of its buildings is a magnificent
-scraper of the sky.  This behemoth is marked by the words, "United Oil" at the
-top, in luminescing red, for all to see. To the north, the revolving glass
-doors welcome clients and employees into the nice, dry, heated lobby.
+   Towering above the harbor district and most of its buildings is a
+gleaming spire of chrome and glass. This monolith is marked by the words,
+"Halcyon Dynamics" at the top, in glowing blue neon, for all to see. To
+the north, the revolving glass doors welcome clients and employees into
+the cool, quiet, well-lit lobby.
 ~
 Flags:	10000000000010000000000
 SecType:	City

@@ -9,9 +9,9 @@ def test_parses_rooms():
     rooms = parse_awake(FIXTURE.read_text())
     assert [r["vnum"] for r in rooms] == [0, 10500]
     t = rooms[0]
-    assert t["name"] == "A Bright Light"
-    assert t["description"].startswith("   What... oh no")
-    assert "grab at" in t["description"]
+    assert t["name"] == "A Sudden Silence"
+    assert t["description"].startswith("   Systems... wait, are you still online")
+    assert "one last connection" in t["description"]
     assert t["sector_hint"] == "inside"
     assert t["flags"] == []
 
@@ -19,8 +19,8 @@ def test_parses_rooms():
 def test_word_sectype_maps_to_hint_vocabulary():
     rooms = parse_awake(FIXTURE.read_text())
     assert rooms[1]["sector_hint"] == "city"
-    assert rooms[1]["name"] == "Below A Corporate Tower"
-    assert rooms[1]["description"].startswith("   Towering above East Tacoma")
+    assert rooms[1]["name"] == "Beneath A Corporate Spire"
+    assert rooms[1]["description"].startswith("   Towering above the harbor district")
 
 
 def test_unknown_sectype_maps_to_empty():

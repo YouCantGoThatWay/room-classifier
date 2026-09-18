@@ -12,13 +12,13 @@ def _spec(parser, glob):
 
 def test_build_from_wld(tmp_path: Path):
     (tmp_path / "w").mkdir()
-    (tmp_path / "w" / "midgaard.wld").write_text(
+    (tmp_path / "w" / "rivenspire.wld").write_text(
         (FIXDIR / "sample.wld").read_text())
     recs = build_source(_spec("wld", "w/*.wld"), tmp_path)
-    assert {r.id for r in recs} == {"testsrc:midgaard:3001",
-                                    "testsrc:midgaard:3054"}
+    assert {r.id for r in recs} == {"testsrc:rivenspire:3001",
+                                    "testsrc:rivenspire:3054"}
     r = recs[0]
-    assert r.tier == "eval" and r.area == "midgaard"
+    assert r.tier == "eval" and r.area == "rivenspire"
     assert "\n" not in r.description  # cleaned
     r.validate()
 
