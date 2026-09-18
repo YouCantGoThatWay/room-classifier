@@ -4,6 +4,7 @@ __pycache__/
 data/*
 !data/README.md
 export/out/
+export/*.zip
 .DS_Store
 ._*
 .pytest_cache/
